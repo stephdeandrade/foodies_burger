@@ -46,8 +46,9 @@ let model;
 
 const loadModel = () => {
   return new Promise((resolve, reject) => {
-    loader.load('models/burger.glb', function (gltf) {
-      gltf.scene.scale.set(3, 3, 3);
+    loader.load('models/foodies.glb', function (gltf) {
+      gltf.scene.scale.set(1, 1, 1);
+      gltf.scene.position.y = -1
       scene.add(gltf.scene);
       model = gltf.scene;
       resolve(model);
