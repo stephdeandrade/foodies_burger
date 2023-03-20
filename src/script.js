@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-
+import { gsap } from "gsap";
 const canvas = document.querySelector('canvas.webgl')
 
 // Cursor
@@ -30,26 +31,45 @@ const planemat = new THREE.MeshStandardMaterial({
 
 const floor = new THREE.Mesh(plane, planemat);
 scene.add(floor);
-floor.position.z = -2
+floor.position.z = -1
 floor.receiveShadow = true;
 
 
 // // Models
+const dracoLoader = new DRACOLoader()
+dracoLoader.setDecoderPath('/draco/')
 
 const loader = new GLTFLoader();
+loader.setDRACOLoader(dracoLoader)
 
+let model;
 
-loader.load( 'models/burger.glb', function ( gltf ) {
-    gltf.scene.scale.set(3,3,3)
-    scene.add( gltf.scene );
+const loadModel = () => {
+  return new Promise((resolve, reject) => {
+    loader.load('models/burger.glb', function (gltf) {
+      gltf.scene.scale.set(3, 3, 3);
+      scene.add(gltf.scene);
+      model = gltf.scene;
+      resolve(model);
+    }, undefined, function (error) {
+      console.error(error);
+      reject(error);
+    });
+  });
+};
 
-}, undefined, function ( error ) {
-    console.error( error );
-    
-} );
-
-
-
+loadModel().then((model) => {
+    gsap.to(model.position, {
+      y: "+=0.1",
+      duration: 1,
+      repeat: -1,
+      yoyo: true,
+      ease: "power2.inOut",
+      
+    });
+  }).catch((error) => {
+    console.error(error);
+  });
 
 
 // Lights
@@ -61,8 +81,9 @@ loader.load( 'models/burger.glb', function ( gltf ) {
     sunLight.shadow.camera.far = 20;
     sunLight.shadow.mapSize.set(2048,2048);
     sunLight.shadow.normalBias = 0.05;
-    sunLight.position.set(-1.5, 7, 3);
-   scene.add(sunLight);
+    sunLight.position.set(-2, 5, 3);
+    scene.add(sunLight);
+    
 
 
 // const axesHelper = new THREE.AxesHelper()
@@ -118,6 +139,8 @@ const camera = new THREE.OrthographicCamera( (-aspectRatio * 5)/2,
 -50,
 50 );
 scene.add( camera );
+
+
 
 
 
